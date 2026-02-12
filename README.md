@@ -1,21 +1,13 @@
 # Predictive Maintenance with Causal Root-Cause Analysis
 
-**Ops Copilot**: RUL prediction + anomaly detection + causal RCA + agentic decision support
+### Real-world problem
+Factories and fleets want to predict failures early (**Remaining Useful Life**) and explain **why** anomalies occurred (root cause), not just detect them.
 
-## Overview
-
-This project combines deep learning for Remaining Useful Life (RUL) prediction and anomaly detection with causal reasoning and LLM-based agents to create an intelligent maintenance copilot.
-
-### Key Features
-- **RUL Prediction**: Transformer/LSTM models on NASA C-MAPSS turbofan data
-- **Anomaly Detection**: Multi-method approach on NAB benchmark
-- **Causal Root-Cause Analysis**: Granger causality + SCM for explainable RCA
-- **Maintenance Copilot Agent**: RAG-enhanced LLM agent with abstention-aware recommendations
-
-## Novel Contributions
-1. **Causal + GenAI decision support**: Grounded action recommendations via causal pathways + manual retrieval
-2. **Counterfactual maintenance planning**: "What-if" scenarios for maintenance optimization
-3. **Abstention-aware agents**: Safety-first recommendations with uncertainty quantification
+### Datasets
+- **NASA C-MAPSS turbofan run-to-failure** (sensor time series with operating conditions; standard RUL benchmark).  
+  Hosted by NASA (DASHlink / NASA Open Data).  
+- **Numenta Anomaly Benchmark (NAB)** for streaming anomaly detection (labeled time series).  
+- Optional: any public multivariate industrial dataset (SKAB, SWaT/WADI if access fits your constraints).
 
 ## Quick Start
 
@@ -26,35 +18,43 @@ pip install -r requirements.txt
 # Download datasets
 bash scripts/download_data.sh
 
-# Preprocess data
-python scripts/preprocess_all.py
-
-# Run baseline experiments (W1-2)
-python experiments/w1_2_cmapss_baseline/train_baseline.py
 ```
 
-## Project Timeline (12 weeks)
+### Core methods (non-GenAI)
+- **RUL prediction**:
+  - Baselines: linear degradation models, random forest, LSTM.
+  - Strong DL: transformer-based RUL models; temporal CNN + attention; survival modeling.
+- **Anomaly detection**:
+  - Forecasting-based (DeepAR-style), reconstruction-based (autoencoders), contrastive methods.
+- **Causal root cause**:
+  - Granger causal discovery + intervention framing; SCM-inspired anomaly RCA.
 
-- **W1-2**: C-MAPSS preprocessing + RUL baselines
-- **W3-5**: Transformer/LSTM RUL models + uncertainty
-- **W6-7**: Anomaly detection on NAB
-- **W8-9**: Causal RCA baseline + integration
-- **W10-11**: Agentic copilot with RAG
-- **W12**: Evaluation + paper report
+### Agentic / GenAI layer
+- “**Maintenance copilot**” agent that:
+  1. Ingests anomaly alerts / RUL forecasts,
+  2. Calls tools for explanation (SHAP, attention rollouts, causal graph queries),
+  3. Retrieves a knowledge base (maintenance manuals / fault trees) via RAG,
+  4. Outputs **actionable recommendations** with confidence + when to escalate to humans.
 
-## Datasets
+### Novel / paper-worthy angle (choose 1–2)
+- **Causal + GenAI decision support**: combine a learned causal graph with LLM-generated actions, but require each action to link to a causal pathway and retrieved manual snippet.
+- **Counterfactual maintenance planning**: “If sensor X were reduced by Δ, predicted RUL increases by …” using causal modeling; LLM turns these into maintenance steps.
+- **Abstention-aware agents**: teach the agent to *not* recommend actions when uncertainty is high; measure safety.
 
-- **NASA C-MAPSS**: Turbofan run-to-failure sensor data
-- **Numenta Anomaly Benchmark (NAB)**: Labeled time series anomalies
+### Evaluation
+- RUL: RMSE/MAE on RUL, scoring functions used in PHM literature; calibration of uncertainty.
+- Anomaly/RCA: precision/recall, time-to-detect, RCA hit-rate.
+- Agent: correctness of recommended actions (expert rubric), groundedness (manual citations), false reassurance rate.
 
-## Evaluation Metrics
+### 12-week timeline
+- **W1–2**: C-MAPSS preprocessing; RUL baselines.
+- **W3–5**: transformer/LSTM strong model + uncertainty.
+- **W6–7**: anomaly detection on NAB (+ optionally multivariate).
+- **W8–9**: causal RCA baseline; integrate into pipeline.
+- **W10–11**: agentic copilot with RAG + action templates; novelty experiment.
+- **W12**: evaluation, ablations, paper-style report.
 
-- **RUL**: RMSE, MAE, PHM scoring functions, calibration
-- **Anomaly/RCA**: Precision, recall, time-to-detect, RCA hit-rate
-- **Agent**: Action correctness, groundedness, false reassurance rate
-
-## References
-
-- Saxena & Goebel (2008): C-MAPSS dataset
-- Lavin & Ahmad (2015): NAB benchmark
-- Recent causal RCA literature (see `docs/paper_outline.md`)
+### Starter papers / references
+- C-MAPSS dataset note (Saxena & Goebel, 2008 citation via NASA dataset page).
+- NAB benchmark paper (Lavin & Ahmad, arXiv 2015) + NAB repo.
+- Recent causal RCA papers (e.g., causal anomaly + root cause framing; Granger-based RCA).
