@@ -11,9 +11,11 @@ dist/
 *.egg-info/
 .eggs/
 
-# Data
-data/raw/
-data/processed/
+# Data (keep folder structure, ignore contents)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
 *.csv
 *.txt
 *.zip
