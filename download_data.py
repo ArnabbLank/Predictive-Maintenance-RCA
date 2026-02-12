@@ -21,6 +21,7 @@ def download_cmapss():
     
     # Try multiple sources
     urls = [
+        "https://data.nasa.gov/docs/legacy/CMAPSSData.zip",
         "https://data.nasa.gov/download/brfb-gzcv/application%2Fzip",
         "https://phmsociety.org/wp-content/uploads/2024/10/CMAPSSData.zip"
     ]
