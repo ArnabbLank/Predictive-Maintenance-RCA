@@ -16,7 +16,7 @@ Factories and fleets want to predict failures early (**Remaining Useful Life**) 
 pip install -r requirements.txt
 
 # Download datasets
-bash scripts/download_data.sh
+python download_data.py
 
 ```
 
