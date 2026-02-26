@@ -28,7 +28,6 @@ wandb/
 
 # Notebooks
 .ipynb_checkpoints/
-*.ipynb
 
 # IDE
 .vscode/
