@@ -1,0 +1,39 @@
+{
+  "n_train_engines": 100,
+  "n_test_engines": 100,
+  "avg_lifetime": 206.31,
+  "informative_sensors": [
+    "sensor_2",
+    "sensor_3",
+    "sensor_4",
+    "sensor_7",
+    "sensor_8",
+    "sensor_9",
+    "sensor_11",
+    "sensor_12",
+    "sensor_13",
+    "sensor_14",
+    "sensor_15",
+    "sensor_17",
+    "sensor_20",
+    "sensor_21"
+  ],
+  "dropped_sensors": [
+    "sensor_1",
+    "sensor_10",
+    "sensor_19",
+    "sensor_18",
+    "sensor_16",
+    "sensor_5",
+    "sensor_6"
+  ],
+  "rul_cap": 125,
+  "top_correlated_sensors": {
+    "sensor_11": 0.775229821871158,
+    "sensor_4": 0.7571567446044734,
+    "sensor_12": 0.7488698691357298,
+    "sensor_7": 0.7330210310750626,
+    "sensor_15": 0.7208584828528034,
+    "sensor_21": 0.7073341478068336
+  }
+}
