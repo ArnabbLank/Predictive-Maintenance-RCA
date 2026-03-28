@@ -1,0 +1,120 @@
+{
+  "eda": {
+    "n_train_engines": 100,
+    "n_test_engines": 100,
+    "avg_lifetime": 206.31,
+    "min_lifetime": 128,
+    "max_lifetime": 362,
+    "informative_sensors": [
+      "sensor_2",
+      "sensor_3",
+      "sensor_4",
+      "sensor_7",
+      "sensor_8",
+      "sensor_9",
+      "sensor_11",
+      "sensor_12",
+      "sensor_13",
+      "sensor_14",
+      "sensor_15",
+      "sensor_17",
+      "sensor_20",
+      "sensor_21"
+    ],
+    "dropped_sensors": [
+      "sensor_1",
+      "sensor_19",
+      "sensor_18",
+      "sensor_10",
+      "sensor_16",
+      "sensor_5",
+      "sensor_6"
+    ],
+    "rul_cap": 125,
+    "top_correlated_sensors": {
+      "sensor_11": 0.7752298218711581,
+      "sensor_4": 0.7571567446044734,
+      "sensor_12": 0.7488698691357298,
+      "sensor_7": 0.733021031075063,
+      "sensor_15": 0.720858482852804,
+      "sensor_21": 0.7073341478068339
+    },
+    "test_rul_min": 7,
+    "test_rul_max": 145,
+    "test_rul_mean": 75.52
+  },
+  "baselines": [
+    {
+      "Model": "Linear Regression",
+      "Val MAE": 12.415153982341797,
+      "Test MAE": 14.735334144968073,
+      "Test RMSE": 18.0637996340232,
+      "Test NASA Score": 530.8307975644394
+    },
+    {
+      "Model": "Ridge",
+      "Val MAE": 14.538504647059135,
+      "Test MAE": 16.14039678854615,
+      "Test RMSE": 19.62315156107901,
+      "Test NASA Score": 678.0029391635779
+    },
+    {
+      "Model": "Random Forest",
+      "Val MAE": 9.594117764920352,
+      "Test MAE": 10.839288309030744,
+      "Test RMSE": 14.394349303148475,
+      "Test NASA Score": 317.88920747862636
+    },
+    {
+      "Model": "Gradient Boosting",
+      "Val MAE": 9.073088191557956,
+      "Test MAE": 10.381807075444117,
+      "Test RMSE": 14.314107097805246,
+      "Test NASA Score": 308.55490832333595
+    }
+  ],
+  "health_index": {
+    "Model": "Health Index (PCA)",
+    "Test MAE": 85.54912301227307,
+    "Test RMSE": 95.07345199811849,
+    "Test NASA Score": 256130557.7084371
+  },
+  "lstm": {
+    "MAE": 13.003385138511657,
+    "RMSE": 17.706855331425675,
+    "NASA_Score": 411.44396285966724
+  },
+  "paper_a": [
+    {
+      "MAE": 12.704909834861756,
+      "RMSE": 16.957775292054592,
+      "NASA_Score": 372.59082715676857,
+      "name": "LSTM_raw"
+    },
+    {
+      "MAE": 12.869390878677368,
+      "RMSE": 16.526738287158857,
+      "NASA_Score": 366.2479799378825,
+      "name": "LSTM_sg"
+    },
+    {
+      "MAE": 24.823218402862548,
+      "RMSE": 29.009550204682085,
+      "NASA_Score": 1718.4086647405568,
+      "name": "CNN_LSTM_raw"
+    },
+    {
+      "MAE": 24.756439781188966,
+      "RMSE": 31.02375886136104,
+      "NASA_Score": 2085.3473145822154,
+      "name": "CNN_LSTM_sg"
+    }
+  ],
+  "cnn_transformer": {
+    "ct_mae": 11.116567974090577,
+    "ct_rmse": 14.941536832829678,
+    "ct_nasa": 349.957270698348,
+    "uncertainty_error_corr": 0.3722577170813606,
+    "mean_uncertainty": 9.961867332458496
+  }
+}
