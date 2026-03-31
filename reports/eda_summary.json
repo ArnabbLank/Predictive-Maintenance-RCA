@@ -2,6 +2,8 @@
   "n_train_engines": 100,
   "n_test_engines": 100,
   "avg_lifetime": 206.31,
+  "min_lifetime": 128,
+  "max_lifetime": 362,
   "informative_sensors": [
     "sensor_2",
     "sensor_3",
@@ -20,20 +22,23 @@
   ],
   "dropped_sensors": [
     "sensor_1",
-    "sensor_10",
     "sensor_19",
     "sensor_18",
+    "sensor_10",
     "sensor_16",
     "sensor_5",
     "sensor_6"
   ],
   "rul_cap": 125,
   "top_correlated_sensors": {
-    "sensor_11": 0.775229821871158,
+    "sensor_11": 0.7752298218711581,
     "sensor_4": 0.7571567446044734,
     "sensor_12": 0.7488698691357298,
-    "sensor_7": 0.7330210310750626,
-    "sensor_15": 0.7208584828528034,
-    "sensor_21": 0.7073341478068336
-  }
+    "sensor_7": 0.733021031075063,
+    "sensor_15": 0.720858482852804,
+    "sensor_21": 0.7073341478068339
+  },
+  "test_rul_min": 7,
+  "test_rul_max": 145,
+  "test_rul_mean": 75.52
 }
