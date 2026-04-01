@@ -30,9 +30,13 @@ page = st.sidebar.radio(
 )
 
 # ── Helper: load data & model ──────────────────────────────────
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
-CHECKPOINT_DIR = os.path.join(os.path.dirname(__file__), '..', 'checkpoints')
-KB_DIR = os.path.join(os.path.dirname(__file__), '..', 'kb')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Remove 'CMAPSS' from here; the data_loader adds it automatically
+DATA_DIR = os.path.join(BASE_DIR, 'data') 
+CHECKPOINT_DIR = os.path.join(BASE_DIR, 'checkpoints')
+REPORTS_DIR = os.path.join(BASE_DIR, 'reports')
+KB_DIR = os.path.join(BASE_DIR, 'kb')
 
 
 @st.cache_data
@@ -41,8 +45,8 @@ def load_data():
     from data_loader import load_test, load_train
     from preprocess import preprocess_pipeline
 
-    train_df = load_train(DATA_DIR, 'FD001')
-    test_df, rul_true = load_test(DATA_DIR, 'FD001')
+    train_df = load_train(1, DATA_DIR)
+    test_df, rul_true = load_test(1, DATA_DIR)
     result = preprocess_pipeline(train_df, test_df, window_size=30)
     return result['X_test'], rul_true
 
@@ -55,10 +59,10 @@ def load_model():
     device = torch.device('cpu')
     model = CNNTransformerModel(
         n_features=14, seq_len=30,
-        cnn_channels=64, d_model=128, nhead=4, num_layers=2, dropout=0.2,
+        cnn_channels=64, d_model=64, nhead=4, num_encoder_layers=2, dropout=0.2,
     )
 
-    ckpt_path = os.path.join(CHECKPOINT_DIR, 'cnn_transformer_best.pt')
+    ckpt_path = os.path.join(CHECKPOINT_DIR, 'cnn_transformer_FD001_best.pt')
     if os.path.exists(ckpt_path):
         state = torch.load(ckpt_path, map_location=device)
         key = 'model_state_dict' if 'model_state_dict' in state else None
@@ -136,7 +140,7 @@ def page_single_engine():
         st.markdown(f"**Uncertainty Level:** :{color}[{level}]")
 
         # Distribution plot
-        preds = all_preds.cpu().numpy().flatten()
+        preds = all_preds.flatten()
         fig, ax = plt.subplots(figsize=(8, 3))
         ax.hist(preds, bins=30, alpha=0.7, color='steelblue', edgecolor='white')
         ax.axvline(x=true_val, color='red', ls='--', lw=2, label=f'True RUL = {true_val:.0f}')
@@ -168,8 +172,8 @@ def page_fleet():
         with st.spinner(f"Analyzing {len(X_test)} engines with {n_mc} MC samples..."):
             X_t = torch.tensor(X_test, dtype=torch.float32).to(device)
             rul_mean, rul_std, _ = model.predict_with_uncertainty(X_t, n_samples=n_mc)
-            rul_mean = rul_mean.cpu().numpy().flatten()
-            rul_std = rul_std.cpu().numpy().flatten()
+            rul_mean = rul_mean.flatten()
+            rul_std = rul_std.flatten()
 
         # Build fleet DataFrame
         fleet = pd.DataFrame({
@@ -232,21 +236,67 @@ def page_fleet():
 
 def page_comparison():
     st.title("🧪 Model Comparison")
-    st.markdown("Fill in results from your experiments.")
+    st.markdown("Experiment results automatically loaded from `all_metrics.json`.")
 
+    # 1. Load the data from your reports folder
+    import json
+    import os
+    metrics_path = os.path.join(REPORTS_DIR, 'all_metrics.json')
+    
+    # Default values (dashes) if file is missing
+    data = {}
+    if os.path.exists(metrics_path):
+        with open(metrics_path, 'r') as f:
+            data = json.load(f)
+
+    # Helper to safely format numbers or return a dash if missing
+    def get_val(val, key='MAE'):
+        if val is None: return "—"
+        # Handle cases where val might be a dict or a float
+        num = val.get(key) if isinstance(val, dict) else val
+        return f"{num:.2f}" if num is not None else "—"
+
+    # 2. Extract specific model data from the JSON structure
+    bl = data.get('baselines', [])
+    pa = data.get('paper_a', [])
+    ct = data.get('cnn_transformer', {})
+    ls = data.get('lstm', {})
+
+    # 3. Create the dynamic DataFrame
     comparison = pd.DataFrame([
-        {'Model': 'Linear Regression', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'Random Forest', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'GBM', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'LSTM', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'CNN+LSTM (raw)', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'CNN+LSTM (SG)', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'CNN-Transformer', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
-        {'Model': 'CNN-Transformer + UQ', 'MAE': '—', 'RMSE': '—', 'Score': '—'},
+        {'Model': 'Linear Regression', 
+         'MAE': get_val(next((m for m in bl if m['Model'] == 'Linear Regression'), None), 'Test MAE'), 
+         'RMSE': get_val(next((m for m in bl if m['Model'] == 'Linear Regression'), None), 'Test RMSE'), 
+         'Score': get_val(next((m for m in bl if m['Model'] == 'Linear Regression'), None), 'Test NASA Score')},
+        
+        {'Model': 'Random Forest', 
+         'MAE': get_val(next((m for m in bl if m['Model'] == 'Random Forest'), None), 'Test MAE'), 
+         'RMSE': get_val(next((m for m in bl if m['Model'] == 'Random Forest'), None), 'Test RMSE'), 
+         'Score': get_val(next((m for m in bl if m['Model'] == 'Random Forest'), None), 'Test NASA Score')},
+        
+        {'Model': 'GBM', 
+         'MAE': get_val(next((m for m in bl if m['Model'] == 'Gradient Boosting'), None), 'Test MAE'), 
+         'RMSE': get_val(next((m for m in bl if m['Model'] == 'Gradient Boosting'), None), 'Test RMSE'), 
+         'Score': get_val(next((m for m in bl if m['Model'] == 'Gradient Boosting'), None), 'Test NASA Score')},
+        
+        {'Model': 'LSTM', 'MAE': get_val(ls, 'MAE'), 'RMSE': get_val(ls, 'RMSE'), 'Score': get_val(ls, 'NASA_Score')},
+        
+        {'Model': 'CNN+LSTM (raw)', 
+         'MAE': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_raw'), None), 'MAE'), 
+         'RMSE': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_raw'), None), 'RMSE'), 
+         'Score': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_raw'), None), 'NASA_Score')},
+        
+        {'Model': 'CNN+LSTM (SG)', 
+         'MAE': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_sg'), None), 'MAE'), 
+         'RMSE': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_sg'), None), 'RMSE'), 
+         'Score': get_val(next((m for m in pa if m['name'] == 'CNN_LSTM_sg'), None), 'NASA_Score')},
+        
+        {'Model': 'CNN-Transformer + UQ', 
+         'MAE': get_val(ct, 'ct_mae'), 'RMSE': get_val(ct, 'ct_rmse'), 'Score': get_val(ct, 'ct_nasa')},
     ])
-    st.table(comparison)
 
-    st.info("💡 **Tip**: Update these values in the code after running each week's experiments.")
+    st.table(comparison)
+    st.success("✅ Data loaded successfully from `reports/all_metrics.json`" if data else "⚠️ No experiment data found. Run `run_weeks_1_to_6.py` first.")
 
 
 def page_about():
